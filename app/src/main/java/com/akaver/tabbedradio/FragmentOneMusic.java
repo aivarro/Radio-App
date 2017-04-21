@@ -140,7 +140,18 @@ public class FragmentOneMusic extends Fragment {
         super.onResume();
         Log.v(TAG,"onResume");
 
-        mButtonPlayStop.setText("PLAY");
+        switch (((MainActivity) getActivity()).getmMusicPlayerStatus()){
+            case C.STREAM_STATUS_STOPPED:
+                mButtonPlayStop.setText(getText(R.string.player_stopped));
+                break;
+            case C.STREAM_STATUS_PLAYING:
+                mButtonPlayStop.setText(getText(R.string.player_playing));
+                break;
+            case C.STREAM_STATUS_BUFFERING:
+                mButtonPlayStop.setText(getText(R.string.player_buffering));
+                break;
+        }
+
 
         // start listening for local broadcasts
         LocalBroadcastManager

@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">TabbedRadio</string>
+    <string name="player_buffering">BUFFERING...</string>
+    <string name="player_stopped">PLAY</string>
+    <string name="player_playing">STOP</string>
 </resources>
