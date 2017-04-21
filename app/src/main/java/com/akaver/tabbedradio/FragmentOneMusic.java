@@ -79,14 +79,26 @@ public class FragmentOneMusic extends Fragment {
             @Override
             public void onClick(View v) {
                 // lets play some stream
-                Log.d(TAG, "button.onclick starting stream:" + mSelectedStreamSource);
+                Log.d(TAG, "button.onclick STOP/PLAY");
 
                 //TODO check network connectivity
 
-                // start the mediaplayer music service
+
                 Intent serviceIntent = new Intent(getActivity(), MediaPlayerService.class);
-                serviceIntent.putExtra(C.INTENT_STREAM_SOURCE, mSelectedStreamSource);
-                getActivity().startService(serviceIntent);
+                switch (((MainActivity) getActivity()).getmMusicPlayerStatus()){
+                    case C.STREAM_STATUS_STOPPED:
+                        Log.d(TAG, "Starting music player: " + mSelectedStreamSource);
+                        // start the mediaplayer music service
+                        serviceIntent.putExtra(C.INTENT_STREAM_SOURCE, mSelectedStreamSource);
+                        getActivity().startService(serviceIntent);
+                        break;
+                    case C.STREAM_STATUS_BUFFERING:
+                    case C.STREAM_STATUS_PLAYING:
+                        Log.d(TAG, "Stopping music player");
+                        getActivity().stopService(serviceIntent);
+                        break;
+                }
+
 
             }
         });

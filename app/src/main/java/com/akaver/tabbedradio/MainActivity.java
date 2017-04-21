@@ -1,9 +1,14 @@
 package com.akaver.tabbedradio;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +26,10 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
 
+    private int mMusicPlayerStatus = C.STREAM_STATUS_STOPPED;
+
+    private IntentFilter mIntentFilter;
+    private BroadcastReceiver mBroadcastReceiver;
 
 
     @Override
@@ -28,6 +37,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "OnCreate");
         setContentView(R.layout.activity_main);
+
+        // Application wide broadcast receiver
+        mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(C.INTENT_STREAM_STATUS_BUFFERING);
+        mIntentFilter.addAction(C.INTENT_STREAM_STATUS_PLAYING);
+        mIntentFilter.addAction(C.INTENT_STREAM_STATUS_STOPPED);
+        mBroadcastReceiver = new BroadcastReceiverInMainActivity();
+
 
 
         // initialize ui components
@@ -37,10 +54,57 @@ public class MainActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(mViewPager);
 
-
         mTabLayout = (TabLayout) findViewById(R.id.tablayout);
         mTabLayout.setupWithViewPager(mViewPager);
+
     }
+
+    public int getmMusicPlayerStatus(){
+        return mMusicPlayerStatus;
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume");
+        super.onResume();
+
+        // start listening for local broadcasts
+        LocalBroadcastManager
+                .getInstance(this)
+                .registerReceiver(mBroadcastReceiver, mIntentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause");
+        super.onPause();
+        // stop listening for local broadcasts
+        LocalBroadcastManager
+                .getInstance(this)
+                .unregisterReceiver(mBroadcastReceiver);
+
+    }
+
+    private class BroadcastReceiverInMainActivity extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "BroadcastReceiverInMainActivity.onReceive: " + intent.getAction());
+            switch (intent.getAction()){
+                case C.INTENT_STREAM_STATUS_BUFFERING:
+                    mMusicPlayerStatus = C.STREAM_STATUS_BUFFERING;
+                    break;
+                case C.INTENT_STREAM_STATUS_PLAYING:
+                    mMusicPlayerStatus = C.STREAM_STATUS_PLAYING;
+                    break;
+                case C.INTENT_STREAM_STATUS_STOPPED:
+                    mMusicPlayerStatus = C.STREAM_STATUS_STOPPED;
+                    break;
+            }
+        }
+    }
+
+
 
 
     private void setupViewPager(ViewPager viewPager){

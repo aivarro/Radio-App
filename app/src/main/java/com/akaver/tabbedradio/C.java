@@ -7,6 +7,11 @@ package com.akaver.tabbedradio;
  */
 
 public class C {
+
+    public static final int STREAM_STATUS_STOPPED = 0;
+    public static final int STREAM_STATUS_BUFFERING = 1;
+    public static final int STREAM_STATUS_PLAYING = 2;
+
     public static final String INTENT_STREAM_SOURCE = "com.akaver.tabbedradio.intent.streamsource";
     public static final String INTENT_STREAM_STATUS_STOPPED = "com.akaver.tabbedradio.intent.streamstatus.stopped";
     public static final String INTENT_STREAM_STATUS_BUFFERING = "com.akaver.tabbedradio.intent.streamstatus.buffering";
