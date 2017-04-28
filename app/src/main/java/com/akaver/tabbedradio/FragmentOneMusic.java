@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,13 +16,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 
 /**
  * Created by akaver on 07/04/2017.
  */
 
-public class FragmentOneMusic extends Fragment {
+public class FragmentOneMusic extends Fragment implements SeekBar.OnSeekBarChangeListener {
 
     private static final String TAG = FragmentOneMusic.class.getSimpleName();
 
@@ -35,6 +37,11 @@ public class FragmentOneMusic extends Fragment {
     private Spinner mSpinnerStreamSource;
     private Button mButtonPlayStop;
     private String mSelectedStreamSource;
+
+
+    private AudioManager audioManager;
+
+    private SeekBar mSeekBarVolume;
 
     private IntentFilter mIntentFilter;
     private BroadcastReceiver mBroadcastReceiver;
@@ -71,6 +78,14 @@ public class FragmentOneMusic extends Fragment {
                     }
                 }
         );
+
+        audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
+
+        // set up the volume seekbar
+        mSeekBarVolume = (SeekBar) view.findViewById(R.id.seekBarVolume);
+        mSeekBarVolume.setOnSeekBarChangeListener(this);
+        mSeekBarVolume.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
+        mSeekBarVolume.setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
 
 
         // set up the PlayStop button
@@ -119,6 +134,7 @@ public class FragmentOneMusic extends Fragment {
         mIntentFilter.addAction(C.INTENT_STREAM_STATUS_BUFFERING);
         mIntentFilter.addAction(C.INTENT_STREAM_STATUS_PLAYING);
         mIntentFilter.addAction(C.INTENT_STREAM_STATUS_STOPPED);
+        mIntentFilter.addAction(C.INTENT_STREAM_VOLUME_CHANGED);
 
         mBroadcastReceiver = new BroadcastReceiverInFragmentOne();
     }
@@ -196,6 +212,26 @@ public class FragmentOneMusic extends Fragment {
         Log.v(TAG,"onDetach");
     }
 
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        Log.d(TAG, "SeekBar.onProgressChanged: " + progress + " fromUser: " + fromUser);
+
+        if (fromUser){
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
+        }
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
+
     private class BroadcastReceiverInFragmentOne extends BroadcastReceiver {
 
         @Override
@@ -209,6 +245,12 @@ public class FragmentOneMusic extends Fragment {
                     break;
                 case C.INTENT_STREAM_STATUS_STOPPED:
                     mButtonPlayStop.setText("PLAY");
+                    break;
+                case C.INTENT_STREAM_VOLUME_CHANGED:
+                    Log.d(TAG, "Stream volume: " + audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
+
+                    mSeekBarVolume.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
+
                     break;
             }
         }

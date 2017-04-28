@@ -16,4 +16,7 @@ public class C {
     public static final String INTENT_STREAM_STATUS_STOPPED = "com.akaver.tabbedradio.intent.streamstatus.stopped";
     public static final String INTENT_STREAM_STATUS_BUFFERING = "com.akaver.tabbedradio.intent.streamstatus.buffering";
     public static final String INTENT_STREAM_STATUS_PLAYING = "com.akaver.tabbedradio.intent.streamstatus.playing";
+
+    public static final String INTENT_STREAM_VOLUME_CHANGED = "com.akaver.tabbedradio.intent.streamvolume.changed";
+
 }
