@@ -28,6 +28,17 @@ public class FragmentOneMusic extends Fragment implements SeekBar.OnSeekBarChang
 
     private static final String TAG = FragmentOneMusic.class.getSimpleName();
 
+    // sky streaming endpoints are listed here
+    // http://sky.babahhcdn.com
+
+    // json endpoints for songinfo are listed here
+    // http://dad.akaver.com
+    // get the json from here - replace station shortname
+    // http://dad.akaver.com/api/songtitles/SP
+
+    // match correct json endpoints with streaming endpoints
+    // skyplus_dance.mp3 - SPDANCE
+
     private static final String[] streamSources = {
             "http://sky.babahhcdn.com/SKYPLUS",
             "http://sky.babahhcdn.com/NRJ"
