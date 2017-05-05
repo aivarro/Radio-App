@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
@@ -11,6 +12,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -219,13 +228,7 @@ public class MediaPlayerService extends Service implements
                     @Override
                     public void run() {
                         // this will be executed at fixed rate
-                        Intent infoIntent = new Intent(C.INTENT_STREAM_INFO);
-                        infoIntent.putExtra(C.INTENT_STREAM_INFO_ARTIST,"Artist " + new Date().toString());
-                        infoIntent.putExtra(C.INTENT_STREAM_INFO_TITLE,"Title " + Calendar.getInstance().get(Calendar.SECOND));
-
-                        LocalBroadcastManager
-                                .getInstance(getApplicationContext())
-                                .sendBroadcast(infoIntent);
+                        new GetSongInfo().execute();
                     }
                 },
                 0, // initial delay, 0 - execute immediately after initialization
@@ -234,4 +237,61 @@ public class MediaPlayerService extends Service implements
         );
 
     }
+
+    private class GetSongInfo extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            String url = "http://dad.akaver.com/api/songtitles/SP";
+
+
+            StringRequest stringRequest = new StringRequest(
+                    Request.Method.GET,
+                    url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+
+                            Log.d(TAG, "GetSongInfo.StringRequest.onResponse: " + response);
+
+                            String artist = "";
+                            String title = "";
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                JSONArray jsonArray = jsonObject.getJSONArray("SongHistoryList");
+                                JSONObject songInfoObject = jsonArray.getJSONObject(0);
+                                artist = songInfoObject.getString("Artist");
+                                title = songInfoObject.getString("Title");
+
+                            } catch ( Exception e) {
+                                Log.e(TAG, "JSON error" + e.toString());
+                            }
+
+
+
+                            Intent infoIntent = new Intent(C.INTENT_STREAM_INFO);
+                            infoIntent.putExtra(C.INTENT_STREAM_INFO_ARTIST,artist);
+                            infoIntent.putExtra(C.INTENT_STREAM_INFO_TITLE, title);
+
+                            LocalBroadcastManager
+                                    .getInstance(getApplicationContext())
+                                    .sendBroadcast(infoIntent);
+
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d(TAG, "GetSongInfo.StringRequest.ErrorListener: " + error.getMessage());
+                        }
+                    }
+            );
+
+            WebApiSingletonServiceHandler
+                    .getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
+
+            return null;
+        }
+    }
+
 }
