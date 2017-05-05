@@ -19,4 +19,8 @@ public class C {
 
     public static final String INTENT_STREAM_VOLUME_CHANGED = "com.akaver.tabbedradio.intent.streamvolume.changed";
 
+    public static final String INTENT_STREAM_INFO = "com.akaver.tabbedradio.intent.streaminfo";
+    public static final String INTENT_STREAM_INFO_ARTIST = "com.akaver.tabbedradio.intent.streaminfo.artist";
+    public static final String INTENT_STREAM_INFO_TITLE = "com.akaver.tabbedradio.intent.streaminfo.title";
+
 }

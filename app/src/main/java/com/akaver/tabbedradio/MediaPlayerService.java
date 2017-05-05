@@ -13,6 +13,11 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by akaver on 10/04/2017.
@@ -35,6 +40,8 @@ public class MediaPlayerService extends Service implements
 
     private PhoneStateListener mPhoneStateListener;
     private TelephonyManager telephonyManager;
+
+    private ScheduledExecutorService mScheduledExecutorService;
 
     private boolean mMusicIsPausedInCall;
 
@@ -199,6 +206,32 @@ public class MediaPlayerService extends Service implements
         LocalBroadcastManager
                 .getInstance(getApplicationContext())
                 .sendBroadcast(new Intent(C.INTENT_STREAM_STATUS_PLAYING));
+
+        startMediaInfoService();
+
+    }
+
+    private void startMediaInfoService(){
+        mScheduledExecutorService = Executors.newScheduledThreadPool(5);
+
+        mScheduledExecutorService.scheduleAtFixedRate(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // this will be executed at fixed rate
+                        Intent infoIntent = new Intent(C.INTENT_STREAM_INFO);
+                        infoIntent.putExtra(C.INTENT_STREAM_INFO_ARTIST,"Artist " + new Date().toString());
+                        infoIntent.putExtra(C.INTENT_STREAM_INFO_TITLE,"Title " + Calendar.getInstance().get(Calendar.SECOND));
+
+                        LocalBroadcastManager
+                                .getInstance(getApplicationContext())
+                                .sendBroadcast(infoIntent);
+                    }
+                },
+                0, // initial delay, 0 - execute immediately after initialization
+                15, // delay between starts
+                TimeUnit.SECONDS
+        );
 
     }
 }

@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 /**
  * Created by akaver on 07/04/2017.
@@ -37,6 +38,8 @@ public class FragmentOneMusic extends Fragment implements SeekBar.OnSeekBarChang
     private Spinner mSpinnerStreamSource;
     private Button mButtonPlayStop;
     private String mSelectedStreamSource;
+    private TextView mTextViewArtist;
+    private TextView mTextViewTitle;
 
 
     private AudioManager audioManager;
@@ -88,6 +91,9 @@ public class FragmentOneMusic extends Fragment implements SeekBar.OnSeekBarChang
         mSeekBarVolume.setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
 
 
+        mTextViewArtist = (TextView) view.findViewById(R.id.textViewArtist);
+        mTextViewTitle = (TextView) view.findViewById(R.id.textViewTitle);
+
         // set up the PlayStop button
         mButtonPlayStop = (Button) view.findViewById(R.id.buttonPlayStop);
         mButtonPlayStop.setOnClickListener(new View.OnClickListener() {
@@ -135,6 +141,7 @@ public class FragmentOneMusic extends Fragment implements SeekBar.OnSeekBarChang
         mIntentFilter.addAction(C.INTENT_STREAM_STATUS_PLAYING);
         mIntentFilter.addAction(C.INTENT_STREAM_STATUS_STOPPED);
         mIntentFilter.addAction(C.INTENT_STREAM_VOLUME_CHANGED);
+        mIntentFilter.addAction(C.INTENT_STREAM_INFO);
 
         mBroadcastReceiver = new BroadcastReceiverInFragmentOne();
     }
@@ -251,6 +258,16 @@ public class FragmentOneMusic extends Fragment implements SeekBar.OnSeekBarChang
 
                     mSeekBarVolume.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
 
+                    break;
+                case C.INTENT_STREAM_INFO:
+                    String artist = intent.getStringExtra(C.INTENT_STREAM_INFO_ARTIST);
+                    String title = intent.getStringExtra(C.INTENT_STREAM_INFO_TITLE);
+                    mTextViewArtist.setText(artist);
+                    mTextViewTitle.setText(title);
+
+                    break;
+                default:
+                    Log.d(TAG, "BroadcastReceiverInFragmentOne.onReceive unhandled intent:" + intent.getAction());
                     break;
             }
         }
