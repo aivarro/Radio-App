@@ -20,6 +20,8 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import org.json.JSONException;
+
 /**
  * Created by akaver on 07/04/2017.
  */
@@ -39,12 +41,12 @@ public class FragmentOneMusic extends Fragment implements SeekBar.OnSeekBarChang
     // match correct json endpoints with streaming endpoints
     // skyplus_dance.mp3 - SPDANCE
 
-    private static final String[] streamSources = {
+    private static String[] streamSources = {
             "http://sky.babahhcdn.com/SKYPLUS",
             "http://sky.babahhcdn.com/NRJ"
     };
 
-
+    private FragmentThree.RadioStationNamesTransferer listener;
 
     private Spinner mSpinnerStreamSource;
     private Button mButtonPlayStop;
@@ -147,6 +149,12 @@ public class FragmentOneMusic extends Fragment implements SeekBar.OnSeekBarChang
         super.onCreate(savedInstanceState);
         Log.v(TAG,"onCreate");
 
+        try {
+            streamSources = (String[]) listener.getStationNames().keySet().toArray(streamSources);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         mIntentFilter = new IntentFilter();
         mIntentFilter.addAction(C.INTENT_STREAM_STATUS_BUFFERING);
         mIntentFilter.addAction(C.INTENT_STREAM_STATUS_PLAYING);
@@ -215,6 +223,15 @@ public class FragmentOneMusic extends Fragment implements SeekBar.OnSeekBarChang
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
+        if (context instanceof FragmentThree.RadioStationNamesTransferer) {
+            listener = (FragmentThree.RadioStationNamesTransferer) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement RadioStationNamesTransferer");
+        }
+
+
         Log.v(TAG,"onAttach");
     }
 

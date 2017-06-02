@@ -3,4 +3,5 @@
     <string name="player_buffering">BUFFERING...</string>
     <string name="player_stopped">PLAY</string>
     <string name="player_playing">STOP</string>
+    <string name="saved_station_keys">com.akaver.tabbedradio.RADIO_STATION_KEYS</string>
 </resources>
